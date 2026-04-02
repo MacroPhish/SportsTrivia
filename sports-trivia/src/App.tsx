@@ -488,67 +488,22 @@ function App() {
   }
 
   if (showResult) {
-    const isPerfect = score === 10;
-    const isConfetti = score >= 8; // include perfect score for confetti
-    const isBalloons = score === 7 || isConfetti || isPerfect;
+    let resultMessage = "";
+    if (score <= 5) {
+      resultMessage = "Nice try";
+    } else if (score === 6 || score === 7) {
+      resultMessage = "Better Luck Next Time";
+    } else if (score === 8 || score === 9) {
+      resultMessage = "Oh So Close";
+    } else if (score === 10) {
+      resultMessage = "PERFECT!!";
+    }
 
     return (
       <div className="app result-page">
         <h1>Sports Trivia Results</h1>
-        {isPerfect && <div className="perfect-banner">Perfect 10/10!</div>}
+        <p className="result-message">{resultMessage}</p>
         <p>You scored {score} out of {currentQuestions.length}!</p>
-        <div className="celebration-container">
-          {isBalloons && (
-            <div className="balloons">
-              {[...Array(50)].map((_, i) => (
-                <span
-                  key={`balloon-${i}`}
-                  className="balloon"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${(i * 0.1).toFixed(2)}s`,
-                    background: ['#ff6b6b', '#63d6c4', '#ffd93d', '#8d72e1'][i % 4],
-                  }}
-                />
-              ))}
-            </div>
-          )}
-          {isConfetti && (
-            <div className="confetti">
-              {[...Array(40)].map((_, i) => (
-                <span
-                  key={`confetti-${i}`}
-                  className="piece"
-                  style={{
-                    left: `${Math.random() * 95}%`,
-                    animationDelay: `${(i * 0.08).toFixed(2)}s`,
-                    background: ['#FFFFFF', '#FFD700'][i % 2],
-                  }}
-                />
-              ))}
-            </div>
-          )}
-          {isPerfect && (
-            <div className="fireworks">
-              {[...Array(30)].map((_, i) => {
-                const angle = (i / 30) * 2 * Math.PI;
-                const distance = 150 + Math.random() * 50;
-                return (
-                  <span
-                    key={`firework-${i}`}
-                    className="firework"
-                    style={{
-                      animationDelay: `${Math.random() * 2}s`,
-                      '--dx': `${Math.cos(angle) * distance}px`,
-                      '--dy': `${Math.sin(angle) * distance}px`,
-                      background: ['#ff0000', '#0000ff', '#ffffff', '#ffff00'][i % 4],
-                    } as any}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
         <div className="save-score">
           <input
             type="text"
@@ -564,13 +519,11 @@ function App() {
             <li key={index}>{entry.name}: {entry.score}</li>
           ))}
         </ul>
-        
         {!reviewMode && wrongAnswers.length > 0 && (
           <button onClick={() => setReviewMode(true)} className="review-btn">
             Review Wrong Answers ({wrongAnswers.length})
           </button>
         )}
-        
         {reviewMode && wrongAnswers.length > 0 && (
           <div className="review-section">
             <h2>Review Wrong Answers</h2>
@@ -587,15 +540,14 @@ function App() {
                 </label>
               ))}
             </div>
-            
             {selectedWrongIndex !== null && wrongAnswers[selectedWrongIndex] && (
               <div className="wrong-answer-detail">
                 <h3>Question:</h3>
                 <p>{wrongAnswers[selectedWrongIndex].question.question}</p>
                 {wrongAnswers[selectedWrongIndex].question.image && (
-                  <img 
-                    src={wrongAnswers[selectedWrongIndex].question.image} 
-                    alt="Question" 
+                  <img
+                    src={wrongAnswers[selectedWrongIndex].question.image}
+                    alt="Question"
                     className="player-image"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
@@ -615,13 +567,11 @@ function App() {
                 </div>
               </div>
             )}
-            
             <button onClick={() => setReviewMode(false)} className="back-review-btn">
               Back to Results
             </button>
           </div>
         )}
-        
         <button onClick={resetQuiz} className="home-btn">Home</button>
       </div>
     );
