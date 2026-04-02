@@ -220,6 +220,7 @@ function App() {
   const [playerName, setPlayerName] = useState('');
   const [timeLeft, setTimeLeft] = useState(15);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showLeaderboardScreen, setShowLeaderboardScreen] = useState(false);
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
   const [selectedIsCorrect, setSelectedIsCorrect] = useState<boolean | null>(null);
@@ -459,7 +460,7 @@ function App() {
 
 
 
-  if (selectedCategory === null) {
+  if (selectedCategory === null && !showLeaderboardScreen) {
     return (
       <div className="app home">
         <h1>Sports Trivia</h1>
@@ -473,6 +474,30 @@ function App() {
           <button onClick={() => selectCategory('Tennis')}>Tennis</button>
           <button onClick={() => selectCategory('All Category Trivia')}>All Category Trivia</button>
         </div>
+        <button className="leaderboard-btn" style={{ position: 'fixed', bottom: 10, left: '50%', transform: 'translateX(-50%)', fontSize: '0.9rem', padding: '6px 16px', borderRadius: '16px', background: '#eee', border: '1px solid #ccc', color: '#333', zIndex: 100 }} onClick={() => setShowLeaderboardScreen(true)}>
+          LeaderBoard
+        </button>
+      </div>
+    );
+  }
+
+  if (showLeaderboardScreen) {
+    const categories = ['NFL', 'MLB', 'College Football', 'College Basketball', 'NBA', 'Tennis', 'All Category Trivia'];
+    return (
+      <div className="app leaderboard-screen">
+        <h1>Leaderboards</h1>
+        {categories.map(cat => (
+          <div key={cat} style={{ marginBottom: 24 }}>
+            <h2 style={{ marginBottom: 4 }}>{cat}</h2>
+            <ul className="leaderboard">
+              {(leaderboards[cat] || []).length === 0 && <li style={{ color: '#888' }}>No scores yet</li>}
+              {(leaderboards[cat] || []).map((entry, idx) => (
+                <li key={idx}>{entry.name}: {entry.score}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <button className="home-btn" style={{ marginTop: 16 }} onClick={() => setShowLeaderboardScreen(false)}>HOME</button>
       </div>
     );
   }
@@ -515,7 +540,7 @@ function App() {
         </div>
         <h2>Leaderboard ({selectedCategory})</h2>
         <ul className="leaderboard">
-          {(leaderboards[selectedCategory] || []).map((entry, index) => (
+          {selectedCategory && (leaderboards[selectedCategory] || []).map((entry: Score, index: number) => (
             <li key={index}>{entry.name}: {entry.score}</li>
           ))}
         </ul>
