@@ -1,0 +1,93 @@
+/* College Basketball Animation Overlay */
+.basketball-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  background: rgba(0,0,0,0.0);
+  pointer-events: none;
+}
+.basketball-scene {
+  position: relative;
+  width: 180px;
+  height: 220px;
+}
+.basketball-hoop {
+  position: absolute;
+  left: 70px;
+  top: 30px;
+  width: 40px;
+  height: 10px;
+  background: #e65100;
+  border-radius: 5px 5px 15px 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 2;
+}
+.basketball-hoop::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 20px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 0 0 10px 10px;
+  border-top: none;
+}
+.basketball-ball {
+  position: absolute;
+  left: 85px;
+  top: 180px;
+  width: 22px;
+  height: 22px;
+  background: #ff9800;
+  border-radius: 50%;
+  border: 2px solid #e65100;
+  z-index: 3;
+}
+.basketball-ball.shot {
+  animation: basketball-shot-score 1.1s cubic-bezier(0.4,1.4,0.6,1) forwards;
+}
+.basketball-ball.airball {
+  animation: basketball-shot-airball 1.1s cubic-bezier(0.4,1.4,0.6,1) forwards;
+}
+@keyframes basketball-shot-score {
+  0% { left: 85px; top: 180px; opacity: 1; }
+  40% { left: 90px; top: 100px; opacity: 1; }
+  70% { left: 95px; top: 50px; opacity: 1; }
+  80% { left: 90px; top: 40px; opacity: 1; }
+  100% { left: 90px; top: 35px; opacity: 0; }
+}
+@keyframes basketball-shot-airball {
+  0% { left: 85px; top: 180px; opacity: 1; }
+  40% { left: 120px; top: 120px; opacity: 1; }
+  70% { left: 150px; top: 60px; opacity: 1; }
+  100% { left: 170px; top: 10px; opacity: 0; }
+}
+.basketball-message {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 8px #222, 0 0 12px #e65100;
+  z-index: 2100;
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+.basketball-message.score {
+  color: #4CAF50;
+  text-shadow: 2px 2px 8px #222, 0 0 12px #ffd700;
+}
+.basketball-message.airball {
+  color: #ff5252;
+  text-shadow: 2px 2px 8px #222, 0 0 12px #e65100;
+}
