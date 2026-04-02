@@ -1,5 +1,7 @@
   // Tennis animation state
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { db } from './firebase';
+import { collection, query, orderBy, limit, onSnapshot, addDoc } from 'firebase/firestore';
 import './App.css'
 import './basketball-animation.css'
 
@@ -318,18 +320,23 @@ function App() {
     setTimeLeft(15);
   };
 
+  // Listen to Firestore for leaderboard updates per category
   useEffect(() => {
-    const categories = ['NFL', 'MLB', 'College Football', 'College Basketball'];
-    const loaded: { [key: string]: Score[] } = {};
-    categories.forEach(cat => {
-      const saved = localStorage.getItem(`sportsTriviaLeaderboard_${cat}`);
-      if (saved) {
-        loaded[cat] = (JSON.parse(saved) as Score[]).sort((a, b) => b.score - a.score).slice(0, 5);
-      } else {
-        loaded[cat] = [];
-      }
+    const categories = ['NFL', 'MLB', 'College Football', 'College Basketball', 'NBA', 'Tennis', 'All Category Trivia'];
+    const unsubscribes = categories.map(cat => {
+      const q = query(
+        collection(db, 'leaderboards', cat, 'scores'),
+        orderBy('score', 'desc'),
+        limit(5)
+      );
+      return onSnapshot(q, (snapshot) => {
+        setLeaderboards(prev => ({
+          ...prev,
+          [cat]: snapshot.docs.map(doc => doc.data() as Score)
+        }));
+      });
     });
-    setLeaderboards(loaded);
+    return () => unsubscribes.forEach(unsub => unsub());
   }, []);
 
   // Clean up old used questions every minute (remove entries older than 10 minutes)
@@ -409,20 +416,16 @@ function App() {
     }, 1300);
   }, [currentQuestions, currentQuestion, timeLeft, selectedCategory, score, wrongAnswers]);
 
-  const saveScore = () => {
+  // Save score to Firestore per category
+  const saveScore = async () => {
     const category = selectedCategory;
     if (category && playerName.trim()) {
       const newScore: Score = { name: playerName.trim(), score };
-      const current = leaderboards[category] || [];
-      const updated = [...current, newScore].sort((a, b) => b.score - a.score).slice(0, 5);
-      const isInTop5 = updated.some(s => s.name === newScore.name && s.score === newScore.score);
-      if (isInTop5) {
-        const newLeaderboards = { ...leaderboards, [category]: updated };
-        setLeaderboards(newLeaderboards);
-        localStorage.setItem(`sportsTriviaLeaderboard_${category}`, JSON.stringify(updated));
+      try {
+        await addDoc(collection(db, 'leaderboards', category, 'scores'), newScore);
         setPlayerName('');
-      } else {
-        setPlayerName('');
+      } catch (e) {
+        alert('Failed to save score. Please try again.');
       }
     }
   };
